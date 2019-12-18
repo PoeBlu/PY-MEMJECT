@@ -34,6 +34,7 @@ def runtime_injection():
     loading_process = kernel32.OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId)
     if not loading_process:
         print("[!] Error attaching to the process: %s" %dwProcessId)
+        sys.exit(1)
     else:
         print("[+] Attached to the process: %s" %dwProcessId)
         
@@ -46,6 +47,7 @@ def runtime_injection():
     allocate_memory = kernel32.VirtualAllocEx(hProcess, lpAddress, dwSize, flAllocationType, flProtect)
     if not loading_process:
         print("[!] Host process memory allocation failed")
+        sys.exit(1)
     else:
         print("[+] Host process memory allocation sucess")
         
@@ -58,6 +60,7 @@ def runtime_injection():
     write_memory = kernel32.WriteProcessMemory(hProcess, lpBaseAddress, lpBuffer, nSize, lpNumberOfBytesWritten)
     if not loading_process:
         print("[!] Failed to copy .DLL into host process")
+        sys.exit(1)
     else:
         print("[+] Successfully copied .DLL into host process")
         
